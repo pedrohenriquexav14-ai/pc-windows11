@@ -17,14 +17,18 @@ jobs:
       - name: Instalar AnyDesk
         run: |
           choco install anydesk.install -y --no-progress
-          Start-Sleep -Seconds 5
 
-      - name: Configurar Senha e Mostrar ID
+      - name: Iniciar Servico e Mostrar ID
         run: |
           $anydesk = "C:\Program Files (x86)\AnyDesk\AnyDesk.exe"
-          if (!(Test-Path $anydesk)) { $anydesk = "C:\Program Files\AnyDesk\AnyDesk.exe" }
+          Start-Process -FilePath $anydesk
+          Start-Sleep -Seconds 15
           echo ${{ github.event.inputs.anydesk_password }} | & $anydesk --set-password
-          $id = & $anydesk --get-id
+          for ($i = 1; $i -le 10; $i++) {
+            $id = & $anydesk --get-id
+            if ($id -match '^\d+$') { break }
+            Start-Sleep -Seconds 5
+          }
           Write-Host "========================================="
           Write-Host "SEU ID DO ANYDESK E: $id"
           Write-Host "========================================="
