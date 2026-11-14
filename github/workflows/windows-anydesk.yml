@@ -1,0 +1,33 @@
+name: Windows AnyDesk
+
+on:
+  workflow_dispatch:
+    inputs:
+      anydesk_password:
+        description: 'Senha para acessar o AnyDesk'
+        required: true
+        default: 'SenhaForte123!'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Baixar e Instalar AnyDesk
+        run: |
+          Invoke-WebRequest -Uri "https://anydesk.com" -OutFile "C:\AnyDesk.exe"
+          Start-Process -FilePath "C:\AnyDesk.exe" -ArgumentList "--install C:\ProgramData\AnyDesk --start-with-win --silent" -Wait
+          Start-Sleep -Seconds 5
+
+      - name: Configurar Senha e Obter ID
+        run: |
+          echo ${{ github.event.inputs.anydesk_password }} | C:\ProgramData\AnyDesk\AnyDesk.exe --set-password
+          $id = C:\ProgramData\AnyDesk\AnyDesk.exe --get-id
+          Write-Host "========================================="
+          Write-Host "SEU ID DO ANYDESK E: $id"
+          Write-Host "========================================="
+
+      - name: Manter Sessao Ativa
+        run: |
+          Start-Sleep -Seconds 21000
