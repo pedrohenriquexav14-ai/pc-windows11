@@ -16,14 +16,15 @@ jobs:
     steps:
       - name: Instalar AnyDesk
         run: |
-          Invoke-WebRequest -Uri "https://anydesk.com" -OutFile "C:\AnyDesk.exe"
-          Start-Process -FilePath "C:\AnyDesk.exe" -ArgumentList "--install C:\ProgramData\AnyDesk --start-with-win --silent" -Wait
+          choco install anydesk.install -y --no-progress
           Start-Sleep -Seconds 5
 
       - name: Configurar Senha e Mostrar ID
         run: |
-          echo ${{ github.event.inputs.anydesk_password }} | C:\ProgramData\AnyDesk\AnyDesk.exe --set-password
-          $id = C:\ProgramData\AnyDesk\AnyDesk.exe --get-id
+          $anydesk = "C:\Program Files (x86)\AnyDesk\AnyDesk.exe"
+          if (!(Test-Path $anydesk)) { $anydesk = "C:\Program Files\AnyDesk\AnyDesk.exe" }
+          echo ${{ github.event.inputs.anydesk_password }} | & $anydesk --set-password
+          $id = & $anydesk --get-id
           Write-Host "========================================="
           Write-Host "SEU ID DO ANYDESK E: $id"
           Write-Host "========================================="
